@@ -1,0 +1,67 @@
+version: '2.3'
+services:
+    amir-csce636-project-train:
+        build: ./
+        image: amir-csce-project:latest
+        volumes:
+            - .:/workspace/
+        working_dir: "/workspace/code/"
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        command: "python3 main.py train '../data/'"
+        network_mode: "host"
+        ipc: "host"
+    amir-csce636-project-test:
+        image: amir-csce-project:latest
+        volumes:
+            - .:/workspace/
+        working_dir: "/workspace/code/"
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        command: "python3 main.py test '../data/' --checkpoint 'best_ckpt_ResNetProp_Standard.pth'"
+        network_mode: "host"
+        ipc: "host"
+    amir-csce636-project-predict:
+        image: amir-csce-project:latest
+        volumes:
+            - .:/workspace/
+        working_dir: "/workspace/code/"
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        command: "python3 main.py predict '../data/' --checkpoint 'best_ckpt_ResNetProp_Standard.pth' --save_dir '../'"
+        network_mode: "host"
+        ipc: "host"
+    amir-csce636-project-train-resume:
+        image: amir-csce-project:latest
+        volumes:
+            - .:/workspace/
+        working_dir: "/workspace/code/"
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        command: "python3 main.py train '../data/' --resume_checkpoint ckpt.pth"
+        network_mode: "host"
+        ipc: "host"
+    tensorboard:
+        image: amir-csce-project:latest
+        volumes:
+        - ./runs:/workspace/runs
+        working_dir: "/workspace/runs"
+        command: "tensorboard --logdir . --port 6006"
+        network_mode: "host"
+        ports:
+            - "6006:6006"
+    
+    test_cuda: 
+        image: amir-csce-project:latest
+        runtime: nvidia
+        environment:
+            - NVIDIA_VISIBLE_DEVICES=all
+        volumes:
+            - ./test_install/:/workspace/test_install
+        working_dir: "/workspace/test_install/"
+        command: "python test_cuda_devices.py"
+
